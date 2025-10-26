@@ -1,0 +1,123 @@
+<form method="post" action="/" class="bg-white rounded-4 p-3 p-md-4 mt-4 shadow-sm">
+    <div class="row g-3">
+        <!-- Жанр -->
+        <div class="col-12 col-md-3 box">
+            <h5 class="filters-header">Жанр</h5>
+            <div class="form-text">Можно выбрать несколько</div>
+            <label for="genre"></label>
+            <select id="genre" name="genre" class="form-select" multiple aria-label="Фильтр по жанру">
+                {% set genres = selected_filters.get("genre", []) %}
+                <option value="боевик" {% if "боевик" in genres %} selected {% endif %} >Боевик</option>
+                <option value="комедия" {% if "комедия" in genres %} selected {% endif %} >Комедия</option>
+                <option value="драма" {% if "драма" in genres %} selected {% endif %} >Драма</option>
+                <option value="триллер" {% if "триллер" in genres %} selected {% endif %} >Триллер</option>
+                <option value="криминал" {% if "криминал" in genres %} selected {% endif %} >Криминал</option>
+                <option value="мультфильм" {% if "мультфильм" in genres %} selected {% endif %} >Мультфильм</option>
+                <option value="приключение" {% if "приключение" in genres %} selected {% endif %} >Приключение</option>
+            </select>
+            <label for="genre_types" style="color:black;">Тип фильтрации по жанру</label>
+            <select id="genre_types" name="genre_types" class="form-select">
+                {% set genre_type = selected_filters.get("genre_types", '|') %}
+                <option value="without_genres" {% if genre_type == "without_genres" %}selected{% endif %}>
+                    Исключить выбранные жанры
+                </option>
+                <option value="," {% if genre_type == "," %}selected{% endif %}>
+                    Совпадают все жанры
+                </option>
+                <option value="|" {% if genre_type == "|" %}selected{% endif %}>
+                    Совпадает хотя бы один жанр
+                </option>
+            </select>
+        </div>
+
+        <!-- Год от -->
+        <div class="col-6 col-md-2 box">
+            <h5 class="filters-header">Дата выхода</h5>
+            <div class="toast-message" id="toastDate">Минимальный рейтинг не может быть больше максимального</div>
+            <div class="filter_container">
+            <label for="primary_release_date.gte" class="form-label">От</label>
+            <input type="date"
+                   id="primary_release_date.gte"
+                   name="primary_release_date.gte"
+                   class="form-control"
+                   min="1900-01-01"
+                   max="2025-12-31"
+                   value="{{ selected_filters.get('primary_release_date.gte', '2024-12-31')}}" />
+            </div>
+            <div class="filter_container">
+            <label for="primary_release_date.lte" class="form-label">До</label>
+            <input type="date"
+                   id="primary_release_date.lte"
+                   name="primary_release_date.lte"
+                   class="form-control"
+                   min="1900-01-01"
+                   max="2025-12-31"
+                   value="{{ selected_filters.get('primary_release_date.lte', '2025-12-31')}}" />
+            </div>
+        </div>
+
+        <!-- Рейтинг -->
+        <div class="col-6 col-md-2 box">
+            <h5 class="filters-header">Рейтинг</h5>
+            <div class="toast-message" id="toastAvg"></div>
+            <div class="filter_container">
+            <label for="vote_average.gte" class="form-label">От</label>
+            <select id="vote_average.gte" name="vote_average.gte" class="form-select average_gte" aria-label="Минимальный рейтинг">
+                {% set vote_avg_gte = selected_filters.get("vote_average.gte", "") %}
+                <option value="" {% if not vote_avg_gte %} selected {% endif %}>Любой</option>
+                <option value="5" {% if vote_avg_gte == "5" %} selected {% endif %}>5+</option>
+                <option value="6" {% if vote_avg_gte == "6" %} selected {% endif %}>6+</option>
+                <option value="7" {% if vote_avg_gte == "7" %} selected {% endif %}>7+</option>
+                <option value="8" {% if vote_avg_gte == "8" %} selected {% endif %}>8+</option>
+            </select>
+            </div>
+            <div class="filter_container">
+            <label for="vote_average.lte" class="form-label">До</label>
+            <select id="vote_average.lte" name="vote_average.lte" class="form-select average_lte" aria-label="Минимальный рейтинг">
+                {% set vote_avg_lte = selected_filters.get("vote_average.lte", "") %}
+                <option value="" {% if not vote_avg_lte %} selected {% endif %}>Любой</option>
+                <option value="5" {% if vote_avg_lte == "5" %} selected {% endif %}>5+</option>
+                <option value="6" {% if vote_avg_lte == "6" %} selected {% endif %}>6+</option>
+                <option value="7" {% if vote_avg_lte == "7" %} selected {% endif %}>7+</option>
+                <option value="8" {% if vote_avg_lte == "8" %} selected {% endif %}>8+</option>
+            </select>
+            </div>
+        </div>
+
+        <!-- Язык -->
+        <div class="col-6 col-md-3 box">
+            <h5 class="filters-header">Страна выпуска</h5>
+            <label for="with_original_language"></label>
+            <select id="with_original_language" name="with_original_language" class="form-select" aria-label="Язык оригинала">
+                {% set orig_lang = selected_filters.get("with_original_language", "") %}
+                <option value="" {% if not orig_lang %} selected {% endif %}>Любая</option>
+                <option value="en" {% if orig_lang == "en" %} selected {% endif %}>Англия</option>
+                <option value="ru" {% if orig_lang == "ru" %} selected {% endif %}>Русский</option>
+                <option value="de" {% if orig_lang == "de" %} selected {% endif %}>Германия</option>
+                <option value="fr" {% if orig_lang == "fr" %} selected {% endif %}>Франция</option>
+                <option value="es" {% if orig_lang == "es" %} selected {% endif %}>Испания</option>
+                <option value="ja" {% if orig_lang == "ja" %} selected {% endif %}>Япония</option>
+            </select>
+        </div>
+
+        <!-- Возрастное ограничение -->
+        <div class="col-6 col-md-3 box">
+            <h5 class="filters-header">Возрастное ограничение</h5>
+            <label for="certification"></label>
+            <select id="certification" name="certification" class="form-select" aria-label="Возрастное ограничение">
+                {% set certification = selected_filters.get("certification", "") %}
+                <option value="" {% if not certification %} selected {% endif %}>Любое</option>
+                <option value="0+" {% if certification == "0+" %} selected {% endif %}>0+</option>
+                <option value="6+" {% if certification == "6+" %} selected {% endif %}>6+</option>
+                <option value="12+" {% if certification == "12+" %} selected {% endif %}>12+</option>
+                <option value="16+" {% if certification == "16+" %} selected {% endif %}>16+</option>
+                <option value="18+" {% if certification == "18+" %} selected {% endif %}>18+</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mt-3 d-flex flex-wrap gap-2">
+        <a class="btn btn-sm btn-outline-secondary ms-auto" id="resetBtn">Сбросить фильтры</a>
+        <button type="submit" class="btn btn-sm btn-primary" id="submitBtn">Найти</button>
+    </div>
+</form>

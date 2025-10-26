@@ -8,7 +8,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     POETRY_NO_INTERACTION=1 \
     PATH="/root/.local/bin:$PATH"
 
-COPY pyproject.toml poetry.lock /tmp/deps/
+COPY pyproject.toml /tmp/deps/
 
 WORKDIR /tmp/deps
-RUN poetry install --no-root
+RUN poetry lock && poetry install --no-root
+
+#Запускать из директории random_movie командой: docker build -f deploy/Dockerfile -t random_movie .
