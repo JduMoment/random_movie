@@ -43,17 +43,8 @@ class Movie(BaseModel):
 
     @classmethod
     def is_valid_movie(cls, **kwargs) -> bool:
-        movie_id = kwargs["id"]
-        title = kwargs["title"]
-        release_date = kwargs["release_date"]
-        genre_ids = kwargs["genre_ids"]
-        overview = kwargs["overview"]
-        poster_path = kwargs["poster_path"]
-
-        if not all((movie_id, title, release_date, genre_ids, overview, poster_path)):
-            return False
-
-        return True
+        required_fields = ("id", "title", "release_date", "genre_ids", "overview", "poster_path")
+        return all(kwargs.get(field) for field in required_fields)
 
     @property
     def release_date_display(self) -> str:
@@ -65,7 +56,7 @@ class Movie(BaseModel):
             genre_id: genre_name
             for genre_name, genre_id in TMDB().genres_name_id_map.items()
         }
-        return [genres_id_name_map[genre_id] for genre_id in self.genre_ids]
+        return [genres_id_name_map[genre_id] for genre_id in self.genre_ids if genre_id in genres_id_name_map]
 
 
 class TMDB:
@@ -74,7 +65,7 @@ class TMDB:
 
         async with httpx.AsyncClient() as client:
             resp = await client.get(
-                f"{os.getenv("TMDB_BASE_URL")}/discover/movie", params={**filters}
+                f"{os.getenv('TMDB_BASE_URL')}/discover/movie", params={**filters}
             )
 
             return resp.json()
@@ -99,7 +90,7 @@ class TMDB:
         ):
             filter_data_map["vote_count.gte"] = 50
 
-        genre_type = filter_data_map.pop("genre_types")
+        genre_type = filter_data_map.pop("genre_types", "|")
 
         if genre_type != "without_genres":
             filter_data_map["with_genres"] = genre_type.join(
@@ -121,26 +112,20 @@ class TMDB:
     async def get_random_movie(
         self, request: "Request", filter_data_map: dict | None = None
     ) -> Movie | None:
-        movies = await self.get_movies(filter_data_map)
-        movie = None
+        movies = await self.get_movies(filter_data_map) or {}
+        results = list(movies.get("results") or [])
+        random.shuffle(results)
 
-        for i in range(0, len(movies)):
-            try:
-                random_movie = random.choice(movies.get("results"))
-            except IndexError:
-                flash = FlashMessages(request=request)
-                flash.add_flash(
-                    "Не удалось найти фильмов, подходящих под выбранные фильтры. Измените фильтрацию.",
-                    "warning",
-                )
-                return
+        for random_movie in results:
+            if movie := Movie.create(**random_movie):
+                return movie
 
-            movie = Movie.create(**random_movie)
-            if movie:
-                break
-            continue
-
-        return movie
+        flash = FlashMessages(request=request)
+        flash.add_flash(
+            "Не удалось найти фильмов, подходящих под выбранные фильтры. Измените фильтрацию.",
+            "warning",
+        )
+        return None
 
 
 class FlashMessages:

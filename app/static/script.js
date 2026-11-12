@@ -31,10 +31,10 @@ function validateAverage() {
     submitBtn.addEventListener("click", function(event) {
         const minDateSelect = document.getElementById("primary_release_date.gte");
         const maxDateSelect = document.getElementById("primary_release_date.lte");
-        const minDate = Date.parse(minDateSelect.value) || 0;
-        const maxDate = Date.parse(maxDateSelect.value) || 0;
+        const minDate = Date.parse(minDateSelect.value);
+        const maxDate = Date.parse(maxDateSelect.value);
 
-        if (minDate > maxDate) {
+        if (minDate && maxDate && minDate > maxDate) {
             event.preventDefault();
             showToast(
                 message="Минимальная дата не может быть больше максимальной",

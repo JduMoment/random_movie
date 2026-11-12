@@ -7,3 +7,7 @@ __pycache__/
 *.py[cod]
 
 .idea/
+
+# Coverage
+.coverage
+htmlcov/

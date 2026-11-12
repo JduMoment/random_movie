@@ -1,25 +1,29 @@
 from dependencies import templates
 from starlette.responses import RedirectResponse
-from typing import TYPE_CHECKING
 from models import TMDB, FlashMessages
 import json
+from datetime import date
 from fastapi import Request
 
 
 class MainPageView:
     async def get(self, request: Request):
-        tmbd = TMDB()
+        tmdb = TMDB()
         flash = FlashMessages(request=request)
         filter_data_map = (
-            json.loads(fdm) if (fdm := request.session["filter_data_map"]) else {}
+            json.loads(fdm) if (fdm := request.session.get("filter_data_map")) else {}
         )
-        movie = await tmbd.get_random_movie(request, filter_data_map.copy())
+        movie = await tmdb.get_random_movie(request, filter_data_map.copy())
+        today = date.today()
         return templates.TemplateResponse(
             "base.html",
             {
                 "request": request,
                 "movie": movie,
                 "selected_filters": filter_data_map,
+                "release_date_max": f"{today.year}-12-31",
+                "release_date_gte_default": today.replace(year=today.year - 1, day=min(today.day, 28)).isoformat(),
+                "release_date_lte_default": today.isoformat(),
                 "flash_messages": flash.flash_messages,
             },
         )

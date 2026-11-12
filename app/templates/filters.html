@@ -30,10 +30,10 @@
             </select>
         </div>
 
-        <!-- Год от -->
+        <!-- Дата выхода -->
         <div class="col-6 col-md-2 box">
             <h5 class="filters-header">Дата выхода</h5>
-            <div class="toast-message" id="toastDate">Минимальный рейтинг не может быть больше максимального</div>
+            <div class="toast-message" id="toastDate"></div>
             <div class="filter_container">
             <label for="primary_release_date.gte" class="form-label">От</label>
             <input type="date"
@@ -41,8 +41,8 @@
                    name="primary_release_date.gte"
                    class="form-control"
                    min="1900-01-01"
-                   max="2025-12-31"
-                   value="{{ selected_filters.get('primary_release_date.gte', '2024-12-31')}}" />
+                   max="{{ release_date_max }}"
+                   value="{{ selected_filters.get('primary_release_date.gte', release_date_gte_default)}}" />
             </div>
             <div class="filter_container">
             <label for="primary_release_date.lte" class="form-label">До</label>
@@ -51,8 +51,8 @@
                    name="primary_release_date.lte"
                    class="form-control"
                    min="1900-01-01"
-                   max="2025-12-31"
-                   value="{{ selected_filters.get('primary_release_date.lte', '2025-12-31')}}" />
+                   max="{{ release_date_max }}"
+                   value="{{ selected_filters.get('primary_release_date.lte', release_date_lte_default)}}" />
             </div>
         </div>
 
